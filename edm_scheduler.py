@@ -3,9 +3,9 @@ from torch import nn
 
 class EDMDiffuser(nn.Module):
     def __init__(self, **ignoredkwargs):
+        super().__init__()
         self.data_sigma = 0.5
         self.Pm, self.Ps = -0.4, 1.0  # depends on sigma data
-        self.a = nn.MarginRankingLoss()
     
     @torch.no_grad()
     def get_c(self, sigma: torch.Tensor, log_sigma: torch.Tensor = None):
@@ -39,10 +39,10 @@ class EDMDiffuser(nn.Module):
 class EDMSolver(nn.Module):
     # ODE solver: 2nd order Heun
     def __init__(self,**ignoredkwargs):
+        super().__init__()
         self.rho = 7
         self.sigma_min = 0.002 # depends on sigma data
         self.sigma_max = 80  # depends on sigma data
-        self.a = nn.MarginRankingLoss()
         
     # @torch.no_grad()
     # def solve_ode(self, model, cls, guidance_scale,
