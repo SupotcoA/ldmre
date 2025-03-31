@@ -10,7 +10,7 @@ def build_model(logger,
     model = DiffusionModel(net_config,
                            diffusion_config,)
     ae_params = calculate_num_params(model.ae)
-    net_params = calculate_num_params(model.unet)
+    net_params = calculate_num_params(model.net)
     info = f"AE params: {ae_params:,}, net params: {net_params:,}"
     print(info)
     logger.log_text(info, "config", newline=True)

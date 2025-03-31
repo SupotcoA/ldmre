@@ -25,7 +25,7 @@ class AutoEncoder(nn.Module):
     def forward(self, x):
         return self.model(x).sample
 
-    @torch.compile
+    # @torch.compile
     def encode(self, x, mode=True):
         dist = self.model.encode(x).latent_dist
         if mode:
@@ -33,7 +33,7 @@ class AutoEncoder(nn.Module):
         else:
             return dist.sample()
 
-    @torch.compile
+    # @torch.compile
     def decode(self, x):
         return self.model.decode(x).sample
 

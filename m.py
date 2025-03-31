@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/kaggle/working/ldmre/ldm')
+sys.path.append('/kaggle/working/ldmre')
 import os
 import torch
 import shutil
