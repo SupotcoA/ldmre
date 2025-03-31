@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 @torch.no_grad()
 def calculate_num_params(model):
-    return sum(p.numel() for p in model.parameters() if p.requires_grad)
+    return sum(p.numel() for p in model.parameters())
 
 @torch.no_grad()
 def tensor2bgr(tensor):

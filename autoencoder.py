@@ -19,7 +19,8 @@ class AutoEncoder(nn.Module):
                                 requires_grad=False)
         self.s = nn.Parameter(torch.tensor([4.17, 4.62, 3.71, 3.28]).view(4,1,1), 
                                 requires_grad=False)
-        self.precomputed_val = - self.m / self.s * self.sigma_data
+        self.precomputed_val = nn.Parameter(- self.m / self.s * self.sigma_data,
+                                            requires_grad=False)
 
 
     def forward(self, x):
