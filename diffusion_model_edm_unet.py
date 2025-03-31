@@ -22,7 +22,7 @@ class DiffusionModel(nn.Module):
         return self.diffuser.calculate_loss(x, sigma, x_pred)
     
     def train_step(self, x0, cls):
-        log_sigma, sigma = self.diffuser.sample_sigma(x0.shape[0])
+        log_sigma, sigma = self.diffuser.sample_sigma(x0.shape[0], device=self.device)
         x = self.diffuser.diffuse(x0,sigma)
         x_pred = self(x, cls, log_sigma, sigma, cls_mask_ratio=0.15)
         return self.calculate_loss(x0, sigma, x_pred)
