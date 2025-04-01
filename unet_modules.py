@@ -159,6 +159,7 @@ class Unet(nn.Module):
                                        padding=1)
         curr_res = 32
         in_ch_mult = (1,) + tuple(ch_mult)
+        ch_mult = tuple(ch_mult) + (in_ch_mult[-1],)
         self.down = nn.ModuleList()
         for i_level in range(self.num_resolutions):
             block = nn.ModuleList()
