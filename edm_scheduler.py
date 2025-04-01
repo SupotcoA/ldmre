@@ -88,6 +88,7 @@ class EDMSolver(nn.Module):
              self.sigma_max**(1/self.rho)))**self.rho
         gamma = [min(2**0.5-1,S[0]/n_steps) if S[1]<t[i]<S[2] else 0\
                  for i in range(n_steps)]
+        t = t.to(self.device)
         x_list = []
         x_pred_list = []
         log_every_n_steps = n_steps // (1 + n_middle_steps)

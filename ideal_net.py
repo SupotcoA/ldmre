@@ -1,7 +1,8 @@
 import torch
 
 class IdealPosteriorEstimator:
-    def __init__(self, clean_data):
+    def __init__(self, clean_data, device):
+        self.device=device
         self.clean_data = clean_data  # shape: [num_samples, ...]
         self.num_samples = clean_data.shape[0]
         self.data_shape = clean_data.shape[1:]
@@ -13,7 +14,7 @@ class IdealPosteriorEstimator:
         if isinstance(t, (int, float)):
             t = torch.full([xt.shape[0]], t).to(self.device)
         elif isinstance(t, torch.Tensor) and t.dim()==0:
-            t=t.expand(xt.shape[0])
+            t=t.expand(xt.shape[0]).to(self.device)
         return torch.stack([self._compute_single_posterior(x, ti) for x, ti in zip(xt, t)])
 
     def _compute_single_posterior(self, xt, t):

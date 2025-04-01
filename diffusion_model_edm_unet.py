@@ -49,7 +49,7 @@ class DiffusionModel(nn.Module):
         if isinstance(t, (int,float)):
             t = torch.full([x.shape[0]], t).to(self.device)
         elif isinstance(t, torch.Tensor) and t.dim()==0:
-            t = t.expand(x.shape[0])
+            t = t.expand(x.shape[0]).to(self.device)
         if guidance>1:
             # Conditional and unconditional outputs
             D_cond = self(x, cls, t, cls_mask_ratio=0.0)      # Conditional denoising
@@ -80,8 +80,7 @@ class DiffusionModel(nn.Module):
     
     @torch.no_grad()
     def eval_solver(self, x, batch_size=9):
-        ideal_net = IdealPosteriorEstimator(x)
-        ideal_net.device = self.device
+        ideal_net = IdealPosteriorEstimator(x, self.device)
         x, _, _ = self.solver.solve(ideal_net,
                                     cls=0,
                                     guidance_scale=0,
