@@ -29,7 +29,7 @@ class DiffusionModel(nn.Module):
         return self.calculate_loss(x0, sigma, x_pred)
     
     @torch.no_grad()
-    def condional_generation(self,
+    def conditional_generation(self,
                              cls,
                              guidance_scale:int=1,
                              batch_size:int=16,
@@ -60,12 +60,12 @@ class DiffusionModel(nn.Module):
             return self(x, cls, t, cls_mask_ratio=0.0)
 
     @torch.no_grad()
-    def condional_generation_with_middle_steps(self,
-                                                cls,
-                                                guidance_scale:int=1,
-                                                batch_size:int=4,
-                                                n_middle_steps=8
-                                                ):
+    def conditional_generation_with_middle_steps(self,
+                                                 cls,
+                                                 guidance_scale:int=1,
+                                                 batch_size:int=4,
+                                                 n_middle_steps=8
+                                                 ):
         
         _, x_list, x0_pred_list = self.solver.solve(self,
                                                     cls,
