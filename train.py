@@ -31,7 +31,7 @@ def train(model,
             lr_scheduler.step()
         if logger.step % train_config['eval_every_n_steps'] == 0:
             model.eval()
-            eval_generation(model, logger, train_config)
+            eval_generation(model, logger)
         if logger.step == train_config['train_steps']:
             model.eval()
             logger.train_end()
