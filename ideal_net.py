@@ -11,7 +11,9 @@ class IdealPosteriorEstimator:
 
     def __call__(self, xt, t):
         if isinstance(t, (int, float)):
-            t = torch.full([xt.shape[0]], t)
+            t = torch.full([xt.shape[0]], t).to(self.device)
+        elif isinstance(t, torch.Tensor) and t.dim()==0:
+            t=t.expand(xt.shape[0])
         return torch.stack([self._compute_single_posterior(x, ti) for x, ti in zip(xt, t)])
 
     def _compute_single_posterior(self, xt, t):

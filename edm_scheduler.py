@@ -65,6 +65,10 @@ class EDMSolver(nn.Module):
     #             x_list.append(x)
     #             x_pred_list.append(x_-t[i+1]*d)
        # return torch.stack(x_list), torch.stack(x_pred_list)
+    
+    @torch.no_grad()
+    def solve(self, *args, **kwargs):
+        return self.solve_sde(*args, **kwargs)
 
     @torch.no_grad()
     def solve_sde(self,                 

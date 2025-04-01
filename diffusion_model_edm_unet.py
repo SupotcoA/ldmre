@@ -48,6 +48,8 @@ class DiffusionModel(nn.Module):
             cls = torch.full([x.shape[0]], cls, dtype=torch.long).to(self.device)
         if isinstance(t, (int,float)):
             t = torch.full([x.shape[0]], t).to(self.device)
+        elif isinstance(t, torch.Tensor) and t.dim()==0:
+            t = t.expand(x.shape[0])
         if guidance>1:
             # Conditional and unconditional outputs
             D_cond = self(x, cls, t, cls_mask_ratio=0.0)      # Conditional denoising
@@ -87,7 +89,6 @@ class DiffusionModel(nn.Module):
                                     n_steps=256,
                                     n_middle_steps=0)
         return self.decode(x)
-
         
     @torch.no_grad()
     def decode(self, x, need_postprocess=True):
