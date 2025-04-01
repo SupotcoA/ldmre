@@ -4,7 +4,7 @@ from torch import nn
 class EDMDiffuser(nn.Module):
     def __init__(self, **ignoredkwargs):
         super().__init__()
-        self.data_sigma = 0.5
+        self.sigma_data = 0.5
         self.Pm, self.Ps = -0.4, 1.0  # depends on sigma data
     
     @torch.no_grad()
@@ -31,8 +31,8 @@ class EDMDiffuser(nn.Module):
 
     def calculate_loss(self, x, sigma, x_pred):
         # need revisiting for numeric stability
-        lambda_ = (sigma.pow(2) + self.data_sigma ** 2) /\
-                    (sigma*self.data_sigma).pow(2)
+        lambda_ = (sigma.pow(2) + self.sigma_data ** 2) /\
+                    (sigma*self.sigma_data).pow(2)
         return (torch.mean((x-x_pred).pow(2),dim=(1,2,3)) * lambda_).mean()
 
 
