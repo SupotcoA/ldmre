@@ -3,6 +3,7 @@ from torch import nn
 from unet_modules import UnetWarp
 from autoencoder import AutoEncoder
 from edm_scheduler import EDMDiffuser, EDMSolver
+from ideal_net import IdealPosteriorEstimator
 
 class DiffusionModel(nn.Module):
     # TODO: implement EMA model
@@ -33,8 +34,6 @@ class DiffusionModel(nn.Module):
                              guidance_scale:int=1,
                              batch_size:int=16,
                              ):
-        if isinstance(cls, int):
-            cls = torch.full([batch_size], cls, dtype=torch.long).to(self.device)
         x, _, _ = self.solver.solve(self,
                                     cls,
                                     guidance_scale,
@@ -45,6 +44,10 @@ class DiffusionModel(nn.Module):
     
     @torch.no_grad()
     def guided_eval(self, x, cls, t, guidance=1):
+        if isinstance(cls, int):
+            cls = torch.full([x.shape[0]], cls, dtype=torch.long).to(self.device)
+        if isinstance(t, (int,float)):
+            t = torch.full([x.shape[0]], t).to(self.device)
         if guidance>1:
             # Conditional and unconditional outputs
             D_cond = self(x, cls, t, cls_mask_ratio=0.0)      # Conditional denoising
@@ -61,8 +64,7 @@ class DiffusionModel(nn.Module):
                                                 batch_size:int=4,
                                                 n_middle_steps=8
                                                 ):
-        if isinstance(cls, int):
-            cls = torch.full([batch_size], cls, dtype=torch.long).to(self.device)
+        
         _, x_list, x0_pred_list = self.solver.solve(self,
                                                     cls,
                                                     guidance_scale,
@@ -73,7 +75,19 @@ class DiffusionModel(nn.Module):
         img = self.decode(x_list)
         img0 = self.decode(x0_pred_list)
         return img, img0
-        
+    
+    @torch.no_grad()
+    def eval_solver(self, x, batch_size=9):
+        ideal_net = IdealPosteriorEstimator(x)
+        ideal_net.device = self.device
+        x, _, _ = self.solver.solve(ideal_net,
+                                    cls=0,
+                                    guidance_scale=0,
+                                    batch_size=batch_size,
+                                    n_steps=256,
+                                    n_middle_steps=0)
+        return self.decode(x)
+
         
     @torch.no_grad()
     def decode(self, x, need_postprocess=True):

@@ -10,8 +10,11 @@ def train(model,
           logger: Logger):
 
     for [x0, cls] in train_dataset:
-        imgs=check_ae(model, x0.to(model.device))
+        x0 = x0.to(model.device)
+        imgs=check_ae(model, x0)
         logger.log_images(imgs, 3, 3, "check_ae")
+        imgs = model.eval_solver(x0, 9)
+        logger.log_images(imgs, 3, 3, "eval_solver")
         break
     
     logger.train_start()

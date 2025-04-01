@@ -13,7 +13,7 @@ class EDMDiffuser(nn.Module):
         skip = sigma_data**2 / (sigma.pow(2)+sigma_data**2)
         in_ = 1 / (sigma.pow(2)+sigma_data**2).sqrt()
         out = (sigma*sigma_data) * in_
-        noise = log_sigma/4 if log_sigma else torch.log(sigma)/4
+        noise = log_sigma/4 if log_sigma is not None else torch.log(sigma)/4
         return skip,out,in_,noise
     
     @torch.no_grad()
