@@ -99,7 +99,7 @@ class ResBlock(nn.Module):
             return AdaptiveGroupNorm(*args,n_groups=16,**kwargs)
 
         out_dim = out_dim if out_dim is not None else in_dim
-        self.norm1 = make_adn(n_channels=out_dim,
+        self.norm1 = make_adn(n_channels=in_dim,
                               c_dim=cond_dim,)
         
         self.conv1 = nn.Conv2d(in_channels=in_dim,

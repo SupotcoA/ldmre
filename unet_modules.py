@@ -146,7 +146,7 @@ class Unet(nn.Module):
 
         self.ch = ch
         self.cond_dim = cond_dim
-        self.num_resolutions = len(ch_mult)
+        self.num_resolutions = len(ch_mult) + 1  # this is different from the original implementation
         self.num_res_blocks = num_res_blocks
         self.in_channels = in_channels
 
