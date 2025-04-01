@@ -88,7 +88,7 @@ class DiffusionModel(nn.Module):
                                     batch_size=batch_size,
                                     n_steps=256,
                                     n_middle_steps=0)
-        return self.decode(x)
+        return self.decode(x, need_postprocess=False)
         
     @torch.no_grad()
     def decode(self, x, need_postprocess=True):
