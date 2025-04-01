@@ -29,20 +29,6 @@ class DiffusionModel(nn.Module):
         return self.calculate_loss(x0, sigma, x_pred)
     
     @torch.no_grad()
-    def conditional_generation(self,
-                             cls,
-                             guidance_scale:int=1,
-                             batch_size:int=16,
-                             ):
-        x, _, _ = self.solver.solve(self,
-                                    cls,
-                                    guidance_scale,
-                                    batch_size,
-                                    n_steps=1024,
-                                    n_middle_steps=0)
-        return self.decode(x)
-    
-    @torch.no_grad()
     def guided_eval(self, x, cls, t, guidance=1):
         if isinstance(cls, int):
             cls = torch.full([x.shape[0]], cls, dtype=torch.long).to(self.device)
@@ -60,10 +46,29 @@ class DiffusionModel(nn.Module):
             return self(x, cls, t, cls_mask_ratio=0.0)
 
     @torch.no_grad()
+    def conditional_generation(self,
+                             cls,
+                             guidance_scale:int=1,
+                             batch_size:int=16,
+                             use_2nd_order=False,
+                             n_steps=512,
+                             ):
+        x, _, _ = self.solver.solve(self,
+                                    cls,
+                                    guidance_scale,
+                                    batch_size,
+                                    use_2nd_order=use_2nd_order,
+                                    n_steps=n_steps,
+                                    n_middle_steps=0)
+        return self.decode(x)
+
+    @torch.no_grad()
     def conditional_generation_with_middle_steps(self,
                                                  cls,
                                                  guidance_scale:int=1,
+                                                 use_2nd_order=False,
                                                  batch_size:int=4,
+                                                 n_steps=512,
                                                  n_middle_steps=8
                                                  ):
         
@@ -71,7 +76,8 @@ class DiffusionModel(nn.Module):
                                                     cls,
                                                     guidance_scale,
                                                     batch_size,
-                                                    n_steps=1024,
+                                                    use_2nd_order=use_2nd_order,
+                                                    n_steps=n_steps,
                                                     n_middle_steps=n_middle_steps)
         x_list, x0_pred_list = torch.vstack(x_list), torch.vstack(x0_pred_list)
         img = self.decode(x_list)
@@ -85,7 +91,8 @@ class DiffusionModel(nn.Module):
                                     cls=0,
                                     guidance_scale=0,
                                     batch_size=batch_size,
-                                    n_steps=256,
+                                    use_2nd_order=True,
+                                    n_steps=64,
                                     n_middle_steps=0)
         return self.decode(x, need_postprocess=False)
         

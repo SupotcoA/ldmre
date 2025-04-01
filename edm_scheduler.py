@@ -78,6 +78,7 @@ class EDMSolver(nn.Module):
                   cls,
                   guidance_scale,
                   batch_size,
+                  use_2nd_order=True,
                   n_steps=1024,
                   n_middle_steps=0,
                   S=(40,0.05,50,1.003), # Schurn, Stmin, Stmax, Snoise
@@ -103,7 +104,7 @@ class EDMSolver(nn.Module):
                                              ti_hat, guidance_scale)) / ti_hat
             xip1 = xi + (t[i+1] - ti_hat) * di
             
-            if t[i+1] > self.sigma_min * 2:
+            if use_2nd_order and t[i+1] > self.sigma_min * 2:
                 di_prime = (xip1 - model.guided_eval(xip1, cls,
                                                      t[i+1], guidance_scale)) / t[i+1]
                 xip1 = xi_hat + (t[i+1] - ti_hat) * 0.5 * (di + di_prime)

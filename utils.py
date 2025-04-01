@@ -54,7 +54,7 @@ class Logger:
             current_peak_mem = max(self.train_memory[-self.log_every_n_steps:])
             info = (f"Train step {self.step}\n"
                    f"loss: {self.loss_accum/self.log_every_n_steps:.4f}\n"
-                   f"tps: {dt/self.log_every_n_steps:.1f}\n"
+                   f"time per step: {dt/self.log_every_n_steps:.1f}\n"
                    f"peak GPU mem: {current_peak_mem:.1f}GB\n")
             
             print(info)
@@ -63,23 +63,36 @@ class Logger:
             self.loss_accum = 0
     
     def train_end(self):
-        # plot train loss curve and memory usage
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+        # Create figure with improved style
+        plt.style.use('seaborn')
+        fig = plt.figure(figsize=(10, 6))
         
-        # Loss curve
-        ax1.plot(self.train_loss)
-        ax1.set_xlabel("step")
-        ax1.set_ylabel("loss")
-        ax1.set_title("Train Loss")
+        # Plot learning curve with better styling
+        plt.plot(self.train_loss, linewidth=2, color='#2E86C1', alpha=0.8)
         
-        # Memory curve
-        ax2.plot(self.train_memory)
-        ax2.set_xlabel("step")
-        ax2.set_ylabel("GPU memory (GB)")
-        ax2.set_title("Peak GPU Memory")
+        # Add rolling average for smoother visualization
+        window_size = min(50, len(self.train_loss))
+        rolling_mean = np.convolve(self.train_loss, 
+                                  np.ones(window_size)/window_size, 
+                                  mode='valid')
+        plt.plot(range(window_size-1, len(self.train_loss)), 
+                 rolling_mean, 
+                 linewidth=2.5, 
+                 color='#E74C3C', 
+                 label='Rolling average')
         
+        # Customize appearance
+        plt.xlabel('Training Steps', fontsize=12)
+        plt.ylabel('Loss', fontsize=12)
+        plt.title('Training Loss Curve', fontsize=14, pad=15)
+        plt.grid(True, linestyle='--', alpha=0.7)
+        plt.legend()
+        
+        # Add tight layout and save
         plt.tight_layout()
-        plt.savefig(os.path.join(self.log_root, "train_stats.png"))
+        plt.savefig(os.path.join(self.log_root, "train_stats.png"), 
+                    dpi=300, 
+                    bbox_inches='tight')
         plt.close()
     
     def log_text(self, text, fname="log", newline=True):
