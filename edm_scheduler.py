@@ -2,8 +2,9 @@ import torch
 from torch import nn
 
 class EDMDiffuser(nn.Module):
-    def __init__(self, **ignoredkwargs):
+    def __init__(self, device,**ignoredkwargs):
         super().__init__()
+        self.device=device
         self.sigma_data = 0.5
         self.Pm, self.Ps = -0.4, 1.0  # depends on sigma data
     
@@ -38,8 +39,9 @@ class EDMDiffuser(nn.Module):
 
 class EDMSolver(nn.Module):
     # ODE solver: 2nd order Heun
-    def __init__(self,**ignoredkwargs):
+    def __init__(self,device, **ignoredkwargs):
         super().__init__()
+        self.device=device
         self.rho = 7
         self.sigma_min = 0.002 # depends on sigma data
         self.sigma_max = 80  # depends on sigma data

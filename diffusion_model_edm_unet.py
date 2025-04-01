@@ -16,8 +16,8 @@ class DiffusionModel(nn.Module):
         self.n_class = net_config['n_class']
         self.ae = AutoEncoder().to(self.device)
         self.net = UnetWarp(net_config).to(self.device)
-        self.diffuser = EDMDiffuser(**diffusion_config).to(self.device)
-        self.solver = EDMSolver(**diffusion_config).to(self.device)
+        self.diffuser = EDMDiffuser(self.device, **diffusion_config).to(self.device)
+        self.solver = EDMSolver(self.device, **diffusion_config).to(self.device)
     
     def calculate_loss(self, x, sigma, x_pred):
         return self.diffuser.calculate_loss(x, sigma, x_pred)
