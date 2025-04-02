@@ -23,9 +23,9 @@ class DiffusionModel(nn.Module):
         return self.diffuser.calculate_loss(x, sigma, x_pred)
     
     def train_step(self, x0, cls):
-        log_sigma, sigma = self.diffuser.sample_sigma(x0.shape[0], device=self.device)
+        sigma, log_sigma = self.diffuser.sample_sigma(x0.shape[0], device=self.device)
         x = self.diffuser.diffuse(x0,sigma)
-        x_pred = self(x, cls, log_sigma, sigma, cls_mask_ratio=0.15)
+        x_pred = self(x, cls, sigma, log_sigma, cls_mask_ratio=0.15)
         return self.calculate_loss(x0, sigma, x_pred)
     
     @torch.no_grad()
@@ -61,6 +61,22 @@ class DiffusionModel(nn.Module):
                                     n_steps=n_steps,
                                     n_middle_steps=0)
         return self.decode(x)
+    
+    @torch.no_grad()
+    def conditional_generation_single_step(self,
+                                            x0,
+                                            cls,
+                                            t,
+                                            batch_size:int=8,
+                                            ):
+        x0 = x0[:batch_size]
+        if isinstance(t, (int,float)):
+            t = torch.full([x0.shape[0]], t).to(self.device)
+        elif isinstance(t, torch.Tensor) and t.dim()==0:
+            t = t.expand(x0.shape[0]).to(self.device)
+        x = self.diffuser.diffuse(x0, t)
+        x_pred = self(x, cls, t, torch.log(t), cls_mask_ratio=0.0)
+        return self.decode(x_pred)
 
     @torch.no_grad()
     def conditional_generation_with_middle_steps(self,

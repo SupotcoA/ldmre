@@ -3,7 +3,7 @@ from torch import nn
 import torch.nn.functional as F
 from embedding import TimeEmbedding, ClassEmbedding, FourierNoiseEmbedding
 from resblock import UpSample, DownSample, ConvNeXtBlock, ResBlock
-from norm import AdaptiveLayerNorm, DyT
+from norm import AdaptiveLayerNorm, DyT, AdaptiveGroupNorm
 from attn import MultiHeadAttnBlock
 
 
@@ -216,7 +216,7 @@ class Unet(nn.Module):
             self.up.insert(0, up)  # prepend to get consistent order
 
         # end
-        self.norm_out = nn.GroupNorm(32, block_in)
+        self.norm_out = AdaptiveGroupNorm(16,block_in)
 
         self.conv_out = torch.nn.Conv2d(block_in,
                                         out_ch,
@@ -255,7 +255,7 @@ class Unet(nn.Module):
 
         assert len(hs)==0, f"len(hs) = {len(hs)}"
         # end
-        h = self.norm_out(h)
+        h = self.norm_out(h,c)
         h = F.silu(h)
         h = self.conv_out(h)
         return h

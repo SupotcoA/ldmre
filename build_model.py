@@ -11,7 +11,8 @@ def build_model(logger,
                            diffusion_config,)
     ae_params = calculate_num_params(model.ae)
     net_params = calculate_num_params(model.net)
-    info = f"AE params: {ae_params:,}, net params: {net_params:,}"
+    net_trainable_params = calculate_num_params(model.net, trainable_only=True)
+    info = f"AE params: {ae_params:,}, Net params: {net_params:,}, Trainable: {net_trainable_params:,}"
     print(info)
     logger.log_text(info, "config", newline=True)
 

@@ -20,7 +20,7 @@ class EDMDiffuser(nn.Module):
     @torch.no_grad()
     def sample_sigma(self, batch_size:int, device=torch.device('cuda')):
         log_sigma = torch.randn(batch_size).to(device) * self.Ps + self.Pm
-        return log_sigma, torch.exp(log_sigma)
+        return torch.exp(log_sigma), log_sigma
     
     @torch.no_grad()
     def diffuse(self, x, sigma, require_n=False):

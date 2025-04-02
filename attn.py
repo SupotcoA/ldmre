@@ -12,11 +12,11 @@ class MultiHeadAttnBlock(nn.Module):
         assert dim % num_heads == 0, "dim should be divisible by num_heads"
         
         self.norm = nn.LayerNorm(dim)
-        self.to_qkv = nn.Linear(dim, dim * 3)
-        self.attention = nn.MultiheadAttention(embed_dim=dim, 
-                                               num_heads=num_heads, 
-                                               batch_first=True)
-        self.proj_out = nn.Linear(dim, dim)
+        self.attention = nn.MultiheadAttention(
+            embed_dim=dim, 
+            num_heads=num_heads, 
+            batch_first=True
+        )
 
     def forward(self, x):
         # inp [B,C,H,W]
@@ -28,16 +28,12 @@ class MultiHeadAttnBlock(nn.Module):
         # Apply layer norm
         normed = self.norm(x_flat)
         
-        # Generate q,k,v
-        qkv = self.to_qkv(normed)
-        q, k, v = torch.chunk(qkv, chunks=3, dim=-1)
+        # Apply attention (nn.MultiheadAttention handles QKV internally)
+        attn_out = self.attention(normed, normed, normed,
+                                  need_weights=False)
         
-        # Apply attention
-        attn_out, _ = self.attention(q, k, v)
-        
-        # Project and reshape back
-        out = self.proj_out(attn_out)
-        out = out.transpose(1, 2).contiguous().reshape(b, c, h, w)
+        # Reshape back
+        out = attn_out.transpose(1, 2).contiguous().reshape(b, c, h, w)
         
         # Residual connection
         return x + out

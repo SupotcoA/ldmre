@@ -6,7 +6,9 @@ import os
 import matplotlib.pyplot as plt
 
 @torch.no_grad()
-def calculate_num_params(model):
+def calculate_num_params(model, trainable_only=False):
+    if trainable_only:
+        return sum(p.numel() for p in model.parameters() if p.requires_grad)
     return sum(p.numel() for p in model.parameters())
 
 @torch.no_grad()
@@ -54,8 +56,8 @@ class Logger:
             current_peak_mem = max(self.train_memory[-self.log_every_n_steps:])
             info = (f"Train step {self.step}\n"
                    f"loss: {self.loss_accum/self.log_every_n_steps:.4f}\n"
-                   f"time per step: {dt/self.log_every_n_steps:.1f}\n"
-                   f"peak GPU mem: {current_peak_mem:.1f}GB\n")
+                   f"time per kstep: {dt/self.log_every_n_steps*1000:.0f}\n"
+                   f"peak GPU mem: {current_peak_mem:.1f} GB\n")
             
             print(info)
             self.log_text(info, "train_log")
