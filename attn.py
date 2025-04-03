@@ -30,7 +30,7 @@ class MultiHeadAttnBlock(nn.Module):
         
         # Apply attention (nn.MultiheadAttention handles QKV internally)
         attn_out = self.attention(normed, normed, normed,
-                                  need_weights=False)
+                                  need_weights=False)[0]
         
         # Reshape back
         out = attn_out.transpose(1, 2).contiguous().reshape(b, c, h, w)
