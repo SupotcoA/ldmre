@@ -216,7 +216,7 @@ class Unet(nn.Module):
             self.up.insert(0, up)  # prepend to get consistent order
 
         # end
-        self.norm_out = AdaptiveGroupNorm(16,block_in)
+        self.norm_out = AdaptiveGroupNorm(16,block_in,cond_dim)
 
         self.conv_out = torch.nn.Conv2d(block_in,
                                         out_ch,
