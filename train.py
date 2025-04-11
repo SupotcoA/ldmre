@@ -13,13 +13,14 @@ def train(model,
         final_eval_generation(model, logger, verbose=train_config['train_steps']==0)
         return
 
-    for [x0, cls] in train_dataset:
-        x0 = x0.to(model.device)
-        imgs=check_ae(model, x0)
-        logger.log_images(imgs, 3, 3, "check_ae")
-        imgs = model.eval_solver(x0, 9)
-        logger.log_images(imgs, 3, 3, "eval_solver")
-        break
+    if train_config['need_check']:
+        for [x0, cls] in train_dataset:
+            x0 = x0.to(model.device)
+            imgs=check_ae(model, x0)
+            logger.log_images(imgs, 3, 3, "check_ae")
+            imgs = model.eval_solver(x0, 9)
+            logger.log_images(imgs, 3, 3, "eval_solver")
+            break
     
     logger.train_start()
     for [x0, cls] in train_dataset:

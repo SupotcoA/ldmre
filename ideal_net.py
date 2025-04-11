@@ -24,5 +24,5 @@ class IdealPosteriorEstimator:
         weights = torch.softmax(exponents, dim=0)
         return torch.sum(self.clean_data * weights.view(-1, 1, 1, 1), dim=0)
 
-    def guided_eval(self, xt, cls, t, guidance):
+    def guided_eval(self, xt, cls, t, guidance, *args, **kwargs):
         return self(xt, t)
