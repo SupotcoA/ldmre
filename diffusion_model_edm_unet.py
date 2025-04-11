@@ -42,6 +42,7 @@ class DiffusionModel(nn.Module):
             D_uncond = self(x, cls, t, cls_mask_ratio=1.0)  # Unconditional denoising
             # Linear combination based on guidance scale
             if cfg_scale:
+                # only works for velocity prediction
                 s=(D_cond*D_uncond).sum(dim=(1,2,3),keep_dim=True)/(D_uncond.pow(2).sum(dim=(1,2,3),keep_dim=True)+1e-8)
             else:
                 s=1

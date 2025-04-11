@@ -41,7 +41,7 @@ def train(model,
             logger.train_end()
             final_eval_generation(model, logger)
             if train_config['save']:
-                logger.log_net(model.net.cpu(),f"edm_{logger.step}")
+                logger.log_net(model.net.cpu(),f"edm_{logger.step}_{logger.model_name}")
             break
 
 @torch.no_grad()

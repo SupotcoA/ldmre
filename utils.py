@@ -19,8 +19,11 @@ def tensor2bgr(tensor):
 class Logger:
     def __init__(self,
                  log_every_n_steps=100,
-                 log_root=None):
+                 log_root=None,
+                 model_name=None
+                 ):
         self.log_root = log_root
+        self.model_name=model_name
         if not os.path.exists(self.log_root):
             os.makedirs(self.log_root)
         self.step = 0
