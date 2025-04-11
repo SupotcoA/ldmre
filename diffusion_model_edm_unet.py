@@ -130,7 +130,7 @@ class DiffusionModel(nn.Module):
     def encode(self, img):
         return self.ae.encode(img)
     
-    @torch.compile()
+    # @torch.compile
     def forward(self, x, cls, sigma, log_sigma=None, cls_mask_ratio=0.0):
         if cls_mask_ratio > 0:
             mask=torch.rand(x.shape[0]) < cls_mask_ratio
