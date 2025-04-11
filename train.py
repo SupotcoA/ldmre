@@ -86,6 +86,16 @@ def final_eval_generation(model, logger, verbose=False):
                                                     cfg,
                                                     16,
                                                     use_2nd_order=False,
+                                                    n_steps=512,
+                                                    cfg_zero_star=True,
+                                                    )
+                logger.log_images(imgs, 4, 4, f"step_{logger.step}_cfg0s_cls_{cls}_cfg_{cfg}")
+        for cfg in [1,3,5]:
+            for cls in range(5):
+                imgs = model.conditional_generation(cls,
+                                                    cfg,
+                                                    16,
+                                                    use_2nd_order=False,
                                                     n_steps=1024,
                                                     )
                 logger.log_images(imgs, 4, 4, f"step_{logger.step}_long_chain_cls_{cls}_cfg_{cfg}")

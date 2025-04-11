@@ -29,7 +29,7 @@ class DiffusionModel(nn.Module):
         return self.calculate_loss(x0, sigma, x_pred)
     
     @torch.no_grad()
-    def guided_eval(self, x, cls, t, guidance=1):
+    def guided_eval(self, x, cls, t, guidance=1, cfg_scale=False):
         if isinstance(cls, int):
             cls = torch.full([x.shape[0]], cls, dtype=torch.long).to(self.device)
         if isinstance(t, (int,float)):
@@ -41,7 +41,11 @@ class DiffusionModel(nn.Module):
             D_cond = self(x, cls, t, cls_mask_ratio=0.0)      # Conditional denoising
             D_uncond = self(x, cls, t, cls_mask_ratio=1.0)  # Unconditional denoising
             # Linear combination based on guidance scale
-            return guidance * D_cond + (guidance - 1) * D_uncond
+            if cfg_scale:
+                s=(D_cond*D_uncond).sum(dim=(1,2,3),keep_dim=True)/(D_uncond.pow(2).sum(dim=(1,2,3),keep_dim=True)+1e-8)
+            else:
+                s=1
+            return guidance * D_cond - (guidance - 1) * s * D_uncond
         else:
             return self(x, cls, t, cls_mask_ratio=0.0)
 
@@ -52,6 +56,7 @@ class DiffusionModel(nn.Module):
                              batch_size:int=16,
                              use_2nd_order=False,
                              n_steps=512,
+                             cfg_zero_star=False
                              ):
         x, _, _ = self.solver.solve(self,
                                     cls,
@@ -59,7 +64,9 @@ class DiffusionModel(nn.Module):
                                     batch_size,
                                     use_2nd_order=use_2nd_order,
                                     n_steps=n_steps,
-                                    n_middle_steps=0)
+                                    n_middle_steps=0,
+                                    cfg_zero_star=cfg_zero_star
+                                    )
         return self.decode(x)
     
     @torch.no_grad()
@@ -122,6 +129,7 @@ class DiffusionModel(nn.Module):
     def encode(self, img):
         return self.ae.encode(img)
     
+    @torch.compile()
     def forward(self, x, cls, sigma, log_sigma=None, cls_mask_ratio=0.0):
         if cls_mask_ratio > 0:
             mask=torch.rand(x.shape[0]) < cls_mask_ratio
