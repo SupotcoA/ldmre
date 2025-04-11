@@ -8,9 +8,9 @@ def train(model,
           train_config,
           train_dataset,
           logger: Logger):
-    if train_config['train_steps']==0:
+    if train_config['train_steps']<=0:
         model.eval()
-        final_eval_generation(model, logger, verbose=True)
+        final_eval_generation(model, logger, verbose=train_config['train_steps']==0)
         return
 
     for [x0, cls] in train_dataset:

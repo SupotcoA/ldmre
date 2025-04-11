@@ -39,7 +39,8 @@ class TimeEmbedding(nn.Module):
 class ClassEmbedding(nn.Module):
     def __init__(self, n_class, cond_dim):
         super().__init__()
-        self.cls_emb = nn.Parameter(torch.zeros(n_class, cond_dim))
+        self.cls_emb = nn.Parameter(torch.zeros(n_class, cond_dim),
+                                    requires_grad=True)
     
     def forward(self, cls):
         return self.cls_emb[cls]

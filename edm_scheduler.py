@@ -102,7 +102,7 @@ class EDMSolver(nn.Module):
             xi_hat = xi + t[i] * epsilon * (2*gamma[i]+gamma[i]**2)**0.5
             di = (xi_hat - model.guided_eval(xi_hat, cls,
                                              ti_hat, guidance_scale)) / ti_hat
-            xip1 = xi + (t[i+1] - ti_hat) * di
+            xip1 = xi_hat + (t[i+1] - ti_hat) * di
             
             if use_2nd_order and t[i+1] > self.sigma_min * 2:
                 di_prime = (xip1 - model.guided_eval(xip1, cls,
