@@ -19,7 +19,7 @@ class EDMDiffuser(nn.Module):
     
     @torch.no_grad()
     def sample_sigma(self, batch_size:int, device=torch.device('cuda')):
-        log_sigma = torch.randn(batch_size).to(device) * self.Ps + self.Pm
+        log_sigma = (torch.randn(batch_size) * self.Ps + self.Pm).to(device)
         return torch.exp(log_sigma), log_sigma
     
     @torch.no_grad()
@@ -44,28 +44,6 @@ class EDMSolver(nn.Module):
         self.rho = 7
         self.sigma_min = 0.002 # depends on sigma data
         self.sigma_max = 80  # depends on sigma data
-        
-    # @torch.no_grad()
-    # def solve_ode(self, model, cls, guidance_scale,
-    #            batch_size, n_steps=256, n_middle_steps=1,**ignoredkwargs):
-    #     t = torch.arange(0,n_steps+1)
-    #     t = (self.sigma_max**(1/self.rho)+\
-    #         t/n_steps*\
-    #         (self.sigma_min**(1/self.rho)-\
-    #         self.sigma_max**(1/self.rho)))**self.rho
-    #     x_list = []
-    #     x_pred_list = []
-    #     log_every_n_steps = n_steps // n_middle_steps
-    #     x = torch.randn(batch_size, 4, 32, 32).to(model.device) * t[0]
-    #     for i in range(n_steps):
-    #         d = 1/t[i] * (x - model(x, cls, t[i], cls_mask_ratio=0.0))
-    #         x_ = x + (t[i+1] - t[i]) * d
-    #         d_ = 1/t[i+1] * (x_ - model(x_, cls, t[i+1], cls_mask_ratio=0.0))
-    #         x = x + 0.5 * (t[i+1] - t[i]) * (d + d_)
-    #         if (i+1) % log_every_n_steps == 0:
-    #             x_list.append(x)
-    #             x_pred_list.append(x_-t[i+1]*d)
-       # return torch.stack(x_list), torch.stack(x_pred_list)
     
     @torch.no_grad()
     def solve(self, *args, **kwargs):
@@ -99,7 +77,7 @@ class EDMSolver(nn.Module):
         log_every_n_steps = n_steps // (1 + n_middle_steps)
         xi = torch.randn(batch_size, 4, 32, 32).to(model.device) * t[0]
         for i in range(n_steps):
-            if i < 2 and cfg_zero_star[0]:
+            if i < 1 and cfg_zero_star[0]:
                 continue
             epsilon = torch.randn_like(xi) * S[3]
             ti_hat = (1+gamma[i])*t[i]

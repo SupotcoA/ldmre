@@ -36,8 +36,8 @@ class AdaptiveGroupNorm(nn.Module):
         scale, bias = torch.chunk(self.fc(c), chunks=2, dim=1)
         scale = scale[:, :, None, None]
         bias = bias[:, :, None, None]
-        return x.mul(1 + scale).add(bias)
-        # return torch.addcmul(bias, scale + 1, x)
+        # return x.mul(1 + scale).add(bias)
+        return torch.addcmul(bias, scale + 1, x)
 
 
 class DyT(nn.Module):

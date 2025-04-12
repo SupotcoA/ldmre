@@ -133,10 +133,10 @@ class ResBlock(nn.Module):
     def forward(self, x, c=None):
         h = x
         h = self.norm1(h, c)
-        h = F.silu(h)
+        h = F.relu(h)
         h = self.conv1(h)
         h = self.norm2(h, c)
-        h = F.silu(h)
+        h = F.relu(h)
         h = self.conv2(h)
         return self.conv_short_cut(x) + h
 
