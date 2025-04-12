@@ -261,7 +261,7 @@ class Unet(nn.Module):
         return h
 
 
-class UnetWarp(nn.Module):
+class UnetWrap(nn.Module):
     def __init__(self,
                  unet_config):
         super().__init__()

@@ -1,9 +1,9 @@
 import torch
 from torch import nn
-from unet_modules import UnetWarp
+from unet_modules import UnetWrap
 from autoencoder import AutoEncoder
 from edm_scheduler import EDMDiffuser, EDMSolver
-from ideal_net import IdealPosteriorEstimator
+from ideal_net import IdealPosteriorEstimatorEDM
 
 class DiffusionModel(nn.Module):
     # TODO: implement EMA model
@@ -14,8 +14,11 @@ class DiffusionModel(nn.Module):
         super().__init__()
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.n_class = net_config['n_class']
-        self.ae = AutoEncoder().to(self.device)
-        self.net = UnetWarp(net_config).to(self.device)
+        self.build_modules(net_config, diffusion_config)
+    
+    def build_modules(self,net_config,diffusion_config):
+        self.ae = AutoEncoder(sigma_data=0.5).to(self.device)
+        self.net = UnetWrap(net_config).to(self.device)
         self.diffuser = EDMDiffuser(self.device, **diffusion_config).to(self.device)
         self.solver = EDMSolver(self.device, **diffusion_config).to(self.device)
     
@@ -43,7 +46,9 @@ class DiffusionModel(nn.Module):
             # Linear combination based on guidance scale
             if cfg_scale:
                 # only works for velocity prediction
-                s=(D_cond*D_uncond).sum(dim=(1,2,3),keep_dim=True)/(D_uncond.pow(2).sum(dim=(1,2,3),keep_dim=True)+1e-8)
+                s=(D_cond*D_uncond).sum(dim=(1,2,3))/\
+                    (D_uncond.pow(2).sum(dim=(1,2,3))+1e-8)
+                s=s[:,None,None,None]
             else:
                 s=1
             return guidance * D_cond - (guidance - 1) * s * D_uncond
@@ -110,7 +115,7 @@ class DiffusionModel(nn.Module):
     
     @torch.no_grad()
     def eval_solver(self, x, batch_size=9):
-        ideal_net = IdealPosteriorEstimator(x, self.device)
+        ideal_net = IdealPosteriorEstimatorEDM(x, self.device)
         x, _, _ = self.solver.solve(ideal_net,
                                     cls=0,
                                     guidance_scale=0,

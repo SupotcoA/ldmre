@@ -38,7 +38,6 @@ class EDMDiffuser(nn.Module):
 
 
 class EDMSolver(nn.Module):
-    # ODE solver: 2nd order Heun
     def __init__(self,device, **ignoredkwargs):
         super().__init__()
         self.device=device
@@ -84,6 +83,8 @@ class EDMSolver(nn.Module):
                   S=(40,0.05,50,1.003), # Schurn, Stmin, Stmax, Snoise
                   cfg_zero_star=False,
                   **ignoredkwargs):
+        if isinstance(cfg_zero_star,bool):
+            cfg_zero_star=(cfg_zero_star,cfg_zero_star) # zero_init, rescale
         # a variant of the Euler-Maruyama method from EDM
         t = torch.arange(0,n_steps+1)
         t = (self.sigma_max**(1/self.rho)+\
@@ -98,7 +99,7 @@ class EDMSolver(nn.Module):
         log_every_n_steps = n_steps // (1 + n_middle_steps)
         xi = torch.randn(batch_size, 4, 32, 32).to(model.device) * t[0]
         for i in range(n_steps):
-            if i < 1 and cfg_zero_star:
+            if i < 2 and cfg_zero_star[0]:
                 continue
             epsilon = torch.randn_like(xi) * S[3]
             ti_hat = (1+gamma[i])*t[i]
@@ -107,7 +108,7 @@ class EDMSolver(nn.Module):
                                              cls,
                                              ti_hat,
                                              guidance_scale,
-                                             cfg_scale=cfg_zero_star)) / ti_hat
+                                             cfg_scale=cfg_zero_star[1])) / ti_hat
             xip1 = xi_hat + (t[i+1] - ti_hat) * di
             
             if use_2nd_order and t[i+1] > self.sigma_min * 2:
@@ -115,7 +116,7 @@ class EDMSolver(nn.Module):
                                                      cls,
                                                      t[i+1],
                                                      guidance_scale,
-                                                     cfg_scale=cfg_zero_star
+                                                     cfg_scale=cfg_zero_star[1]
                                                      )) / t[i+1]
                 xip1 = xi_hat + (t[i+1] - ti_hat) * 0.5 * (di + di_prime)
             xi = xip1

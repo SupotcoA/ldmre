@@ -7,13 +7,14 @@ class AutoEncoder(nn.Module):
 
     def __init__(self,
                  model_type="stabilityai/sd-vae-ft-ema",
+                 sigma_data=0.5,
                  # params = 34 + 49 M
                  # f = 8; embed_dim = 4
                  **ignoredkeys):
 
         super().__init__()
         self.model = AutoencoderKL.from_pretrained(model_type).eval().requires_grad_(False)
-        self.sigma_data = 0.5
+        self.sigma_data = sigma_data
         # remember to scale mean here when changing resolution
         self.m = nn.Parameter(torch.tensor([5.81, 3.25, 0.12, -2.15]).view(4,1,1)/4, 
                                 requires_grad=False)
