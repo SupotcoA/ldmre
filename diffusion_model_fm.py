@@ -6,6 +6,8 @@ from fm_scheduler import FMDiffuser,FMSolver
 from ideal_net import IdealPosteriorEstimatorFM
 
 class DiffusionModel(EDM):
+    # TODO: EMA
+    # TODO: optimal data-noise pairing
     def build_modules(self,net_config,diffusion_config):
         self.ae = AutoEncoder(sigma_data=1.0).to(self.device)
         self.net = UnetWrap(net_config).to(self.device)

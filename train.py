@@ -29,9 +29,12 @@ def train(model,
         x0 = model.ae.preprocess(x0)
         optim.zero_grad()
         loss = model.train_step(x0, cls)
-        loss.backward()
-        optim.step()
-        logger.train_step(loss.detach().cpu().item())
+        if loss.detach().cpu().item()>0.725:
+            logger.train_step(0.725)
+        else:
+            loss.backward()
+            optim.step()
+            logger.train_step(loss.detach().cpu().item())
         if train_config['use_lr_scheduler']:
             lr_scheduler.step()
         if logger.step % train_config['eval_every_n_steps'] == 0:

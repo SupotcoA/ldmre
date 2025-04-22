@@ -27,6 +27,7 @@ class Logger:
         if not os.path.exists(self.log_root):
             os.makedirs(self.log_root)
         self.step = 0
+        self.skip_step = 0
         self.log_every_n_steps = log_every_n_steps
         self.time = 0
         self.loss_accum = 0
@@ -42,6 +43,12 @@ class Logger:
     def train_resume(self):
         self.time = time.time()
         torch.cuda.reset_peak_memory_stats()
+
+    @torch.no_grad()
+    def skip_train_step(self, default_loss):
+        self.step += 1
+        self.skip_step += 1
+        self.loss_accum += default_loss
 
     @torch.no_grad()
     def train_step(self, loss):
@@ -68,6 +75,7 @@ class Logger:
             self.loss_accum = 0
     
     def train_end(self):
+        self.log_text(f"Skipped steps: {self.skip_step}")
         # Create figure with improved style
         plt.style.use('seaborn')
         fig = plt.figure(figsize=(10, 6))
