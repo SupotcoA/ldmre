@@ -12,6 +12,7 @@ class DiffusionModel(nn.Module):
                  diffusion_config,
                  ):
         super().__init__()
+        self.net_config = net_config
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.n_class = net_config['n_class']
         self.build_modules(net_config, diffusion_config)
@@ -22,9 +23,26 @@ class DiffusionModel(nn.Module):
         self.diffuser = EDMDiffuser(self.device, **diffusion_config).to(self.device)
         self.solver = EDMSolver(self.device, **diffusion_config).to(self.device)
     
+    def init_ema(self):
+        assert not hasattr(self, 'ema_net'), "ema_net already exists!"
+        # copy self.net as init
+        self.ema_net=UnetWrap(self.net_config).to(self.device)
+        self.ema_net.load_state_dict(self.net.state_dict())
+    
+    @torch.no_grad()
+    def ema_update(self, decay=0.999):
+        if hasattr(self, 'ema_net'):
+            # update ema_net with decay
+            for ema_param, param in zip(self.ema_net.parameters(), self.net.parameters()):
+                ema_param.data = decay * ema_param.data + (1 - decay) * param.data
+    
+    def apply_ema(self):
+        self.net, self.ema_net = self.ema_net, self.net
+    
     def calculate_loss(self, x, sigma, x_pred):
         return self.diffuser.calculate_loss(x, sigma, x_pred)
     
+    @torch.compile(backend='inductor', mode='reduce-overhead') # reduce-overhead costs more memory
     def train_step(self, x0, cls):
         sigma, log_sigma = self.diffuser.sample_sigma(x0.shape[0], device=self.device)
         x = self.diffuser.diffuse(x0,sigma)

@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 from utils import Logger, check_ae
 
 
@@ -29,20 +30,28 @@ def train(model,
         x0 = model.ae.preprocess(x0)
         optim.zero_grad()
         loss = model.train_step(x0, cls)
-        if loss.detach().cpu().item()>0.725:
-            logger.train_step(0.725)
-        else:
-            loss.backward()
-            optim.step()
-            logger.train_step(loss.detach().cpu().item())
+        # if loss.detach().cpu().item()>0.725:
+        #     logger.train_step(0.725)
+        # else:
+        loss.backward()
+        optim.step()
+        model.ema_update(train_config['ema_decay'])
+        logger.train_step(loss.detach().cpu().item())
         if train_config['use_lr_scheduler']:
             lr_scheduler.step()
         if logger.step % train_config['eval_every_n_steps'] == 0:
             model.eval()
             eval_generation(model, logger)
+        if train_config['use_ema'] \
+            and logger.step == train_config['train_steps']-train_config['ema_steps']:
+            model.init_ema()
         if logger.step == train_config['train_steps']:
             model.eval()
             logger.train_end()
+            test(model, logger, train_dataset, num_test_steps=1000)
+            if train_config['use_ema']:
+                model.apply_ema()
+                test(model, logger, train_dataset, num_test_steps=1000)
             final_eval_generation(model, logger)
             if train_config['save']:
                 logger.log_net(model.net.cpu(),f"edm_{logger.step}_{logger.model_name}")
@@ -131,17 +140,21 @@ def final_eval_generation(model, logger, verbose=False):
 
 @torch.no_grad()
 def test(model,
-         train_config,
-         test_dataset):
+         logger,
+         train_dataset,
+         num_test_steps=1000,
+         ):
     model.eval()
-    acc_loss = 0
+    acc_loss = []
     step = 0
-    for [x0, cls] in test_dataset:
+    for [x0, cls] in train_dataset:
         step += 1
         loss = model.train_step(x0.to(model.device), cls.to(model.device))
-        acc_loss += loss.cpu().item()
-    info = f"Test step\n" \
-           + f"loss:{acc_loss / step:.4f}\n"
+        acc_loss.append(loss.cpu().item())
+        if step >= num_test_steps:
+            break
+    acc_loss=np.asarray(acc_loss)
+    info = f"Test\n" \
+           + f"loss:{acc_loss.mean():.4f}+-{acc_loss.std():.4f}" 
     print(info)
-    with open(train_config['log_path'], 'a') as f:
-        f.write(info)
+    logger.log_text(info, "train_log", newline=True)

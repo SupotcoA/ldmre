@@ -75,7 +75,7 @@ class Logger:
             self.loss_accum = 0
     
     def train_end(self):
-        self.log_text(f"Skipped steps: {self.skip_step}")
+        self.log_text(f"Skipped steps: {self.skip_step}","train_log")
         # Create figure with improved style
         plt.style.use('seaborn')
         fig = plt.figure(figsize=(10, 6))
