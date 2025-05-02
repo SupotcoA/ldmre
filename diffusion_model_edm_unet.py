@@ -46,7 +46,7 @@ class DiffusionModel(nn.Module):
     def calculate_loss(self, x, sigma, x_pred):
         return self.diffuser.calculate_loss(x, sigma, x_pred)
     
-    @torch.compile(backend='cudagraphs')
+    #@torch.compile(backend='cudagraphs')
     def train_step(self, x0, cls):
         sigma, log_sigma = self.diffuser.sample_sigma(x0.shape[0], device=self.device)
         x = self.diffuser.diffuse(x0,sigma)
