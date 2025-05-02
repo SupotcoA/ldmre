@@ -36,13 +36,17 @@ class DiffusionModel(nn.Module):
             for ema_param, param in zip(self.ema_net.parameters(), self.net.parameters()):
                 ema_param.data = decay * ema_param.data + (1 - decay) * param.data
     
+    @torch.no_grad()
     def apply_ema(self):
-        self.net, self.ema_net = self.ema_net, self.net
+        if hasattr(self, 'ema_net'):
+            # apply ema_net to net
+            self.net.load_state_dict(self.ema_net.state_dict())
+            # del self.ema_net
     
     def calculate_loss(self, x, sigma, x_pred):
         return self.diffuser.calculate_loss(x, sigma, x_pred)
     
-    @torch.compile(backend='inductor', mode='reduce-overhead') # reduce-overhead costs more memory
+    @torch.compile(backend='cudagraphs', mode='reduce-overhead') # reduce-overhead costs more memory
     def train_step(self, x0, cls):
         sigma, log_sigma = self.diffuser.sample_sigma(x0.shape[0], device=self.device)
         x = self.diffuser.diffuse(x0,sigma)
