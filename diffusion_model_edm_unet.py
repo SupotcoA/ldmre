@@ -39,8 +39,9 @@ class DiffusionModel(nn.Module):
     @torch.no_grad()
     def apply_ema(self):
         if hasattr(self, 'ema_net'):
+            self.net, self.ema_net = self.ema_net, self.net
             # apply ema_net to net
-            self.net.load_state_dict(self.ema_net.state_dict())
+            # self.net.load_state_dict(self.ema_net.state_dict())
             # del self.ema_net
     
     def calculate_loss(self, x, sigma, x_pred):

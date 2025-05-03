@@ -48,14 +48,18 @@ def train(model,
         if logger.step == train_config['train_steps']:
             model.eval()
             logger.train_end()
-            test(model, logger, train_dataset, num_test_steps=1000)
-            if train_config['use_ema']:
-                model.apply_ema()
-                test(model, logger, train_dataset, num_test_steps=1000)
-            final_eval_generation(model, logger)
-            if train_config['save']:
-                logger.log_net(model.net.cpu(),f"edm_{logger.step}_{logger.model_name}")
             break
+    
+    loss1=test(model, logger, train_dataset, num_test_steps=1000)
+    if train_config['use_ema']:
+        model.apply_ema()
+        loss2=test(model, logger, train_dataset, num_test_steps=1000)
+        if not loss2<loss1:
+            model.apply_ema()
+    final_eval_generation(model, logger)
+    if train_config['save']:
+        logger.log_net(model.net.cpu(),f"edm_{logger.step}_{logger.model_name}")
+    return
 
 @torch.no_grad()
 def eval_generation(model, logger):
@@ -149,7 +153,9 @@ def test(model,
     step = 0
     for [x0, cls] in train_dataset:
         step += 1
-        loss = model.train_step(x0.to(model.device), cls.to(model.device))
+        x0, cls = x0.to(model.device), cls.to(model.device)
+        x0 = model.ae.preprocess(x0)
+        loss = model.train_step(x0, cls)
         acc_loss.append(loss.cpu().item())
         if step >= num_test_steps:
             break
@@ -158,3 +164,4 @@ def test(model,
            + f"loss:{acc_loss.mean():.4f}+-{acc_loss.std():.4f}" 
     print(info)
     logger.log_text(info, "train_log", newline=True)
+    return acc_loss.mean()
