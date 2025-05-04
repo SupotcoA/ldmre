@@ -71,7 +71,7 @@ def eval_generation(model, logger):
                                             use_2nd_order=False,
                                             n_steps=512,
                                             )
-        logger.log_images(imgs, 3, 3, f"step_{logger.step}_cls_{cls}_cfg_1")
+        logger.log_images(imgs, 3, 3, f"step_{logger.step}_cls_{cls}_cfg_1_step_512")
     logger.generation_end()
     logger.train_resume()
 
@@ -79,7 +79,7 @@ def eval_generation(model, logger):
 def final_eval_generation(model, logger, verbose=False):
     logger.generation_start()
     if verbose:
-        for cfg in [1,2,3,4]:
+        for cfg in [1,2,3]:
             for cls in range(5):
                 imgs = model.conditional_generation(cls,
                                                     cfg,
@@ -88,19 +88,19 @@ def final_eval_generation(model, logger, verbose=False):
                                                     n_steps=512,
                                                     cfg_zero_star=True
                                                     )
-                logger.log_images(imgs, 4, 4, f"step_{logger.step}_czs_cls_{cls}_cfg_{cfg}")
-        # for cfg in [1,2,3]:
-        #     for cls in range(5):
-        #         imgs = model.conditional_generation(cls,
-        #                                             cfg,
-        #                                             16,
-        #                                             use_2nd_order=True,
-        #                                             n_steps=512,
-        #                                             cfg_zero_star=True
-        #                                             )
-        #         logger.log_images(imgs, 4, 4, f"step_{logger.step}_2nd_order_cls_{cls}_cfg_{cfg}")
+                logger.log_images(imgs, 4, 4, f"step_{logger.step}_cls_{cls}_cfg_{cfg}_step_512_czs")
+        for cfg in [1,]:
+            for cls in [1,2,3]:
+                imgs = model.conditional_generation(cls,
+                                                    cfg,
+                                                    16,
+                                                    use_2nd_order=True,
+                                                    n_steps=512,
+                                                    cfg_zero_star=(True,False),
+                                                    )
+                logger.log_images(imgs, 4, 4, f"step_{logger.step}_cls_{cls}_cfg_{cfg}_step_512_2nd_order_czs1")
         for cfg in [1,2,3]:
-            for cls in range(5):
+            for cls in [1,2,3]:
                 imgs = model.conditional_generation(cls,
                                                     cfg,
                                                     16,
@@ -108,7 +108,7 @@ def final_eval_generation(model, logger, verbose=False):
                                                     n_steps=512,
                                                     cfg_zero_star=(True,False),
                                                     )
-                logger.log_images(imgs, 4, 4, f"step_{logger.step}_zero_init_only_cls_{cls}_cfg_{cfg}")
+                logger.log_images(imgs, 4, 4, f"step_{logger.step}_cls_{cls}_cfg_{cfg}_step_512_czs1")
         for cfg in [1,2,3]:
             for cls in range(5):
                 imgs = model.conditional_generation(cls,
@@ -118,17 +118,19 @@ def final_eval_generation(model, logger, verbose=False):
                                                     n_steps=1024,
                                                     cfg_zero_star=False
                                                     )
-                logger.log_images(imgs, 4, 4, f"step_{logger.step}_long_chain_cls_{cls}_cfg_{cfg}")
-        # for cfg in [1,2,3]:
-        #     for cls in range(5):
-        #         imgs, imgs0 = model.conditional_generation_with_middle_steps(cls,
-        #                                                                     cfg,
-        #                                                                     use_2nd_order=False,
-        #                                                                     batch_size=4,
-        #                                                                     n_steps=512,
-        #                                                                     n_middle_steps=8)
-        #         logger.log_images(imgs, 4, 8, f"step_{logger.step}_mid_cls_{cls}_cfg_{cfg}")
-        #         logger.log_images(imgs0, 4, 8, f"step_{logger.step}_mid_pred_cls_{cls}_cfg_{cfg}")
+                logger.log_images(imgs, 4, 4, f"step_{logger.step}_cls_{cls}_cfg_{cfg}_step_1024")
+        for cfg in [1, 1.25, 1.75, 2, 2.5]:
+            for cls in [2,3]:
+                imgs, imgs0 = model.conditional_generation_with_middle_steps(cls,
+                                                                            cfg,
+                                                                            use_2nd_order=False,
+                                                                            batch_size=6,
+                                                                            n_steps=1024,
+                                                                            n_middle_steps=7,
+                                                                            cfg_zero_star=(True,False)
+                                                                            )
+                logger.log_images(imgs, 6, 8, f"step_{logger.step}_cls_{cls}_cfg_{cfg}_step_1024_mid_czs1")
+                logger.log_images(imgs0, 6, 8, f"step_{logger.step}_cls_{cls}_cfg_{cfg}_step_1024_mid_czs1_pred")
     else:
         for cfg in [1,2,3]:
             for cls in range(5):

@@ -77,7 +77,7 @@ class EDMSolver(nn.Module):
         log_every_n_steps = n_steps // (1 + n_middle_steps)
         xi = torch.randn(batch_size, 4, 32, 32).to(model.device) * t[0]
         for i in range(n_steps):
-            if i < 1 and cfg_zero_star[0]:
+            if i < 2 and cfg_zero_star[0]:
                 continue
             epsilon = torch.randn_like(xi) * S[3]
             ti_hat = (1+gamma[i])*t[i]
@@ -102,6 +102,9 @@ class EDMSolver(nn.Module):
             if (i+1) % log_every_n_steps == 0:
                 x_list.append(xi)
                 x_pred_list.append(xi_hat-ti_hat*di)
+        std=x_list[-1].std()
+        for xi in x_list[:-1]:
+            xi*=std/xi.std()
         return xi, x_list, x_pred_list
     
 
