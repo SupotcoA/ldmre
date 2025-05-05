@@ -88,7 +88,7 @@ class DiffusionModel(nn.Module):
                              S=(40,0.05,50,1.003),
                              cfg_zero_star=False,
                              ):
-        x, _, _ = self.solver.solve(self,
+        x,  _ = self.solver.solve(self,
                                     cls,
                                     guidance_scale,
                                     batch_size,
@@ -128,25 +128,24 @@ class DiffusionModel(nn.Module):
                                                  cfg_zero_star=(True,False)
                                                  ):
         
-        _, x_list, x0_pred_list = self.solver.solve(self,
-                                                    cls,
-                                                    guidance_scale,
-                                                    batch_size,
-                                                    use_2nd_order=use_2nd_order,
-                                                    n_steps=n_steps,
-                                                    n_middle_steps=n_middle_steps,
-                                                    S=S,
-                                                    cfg_zero_star=cfg_zero_star
-                                                    )
-        x_list, x0_pred_list = torch.vstack(x_list), torch.vstack(x0_pred_list)
-        img = self.decode(x_list)
-        img0 = self.decode(x0_pred_list)
-        return img, img0
+        _, x0_pred_list = self.solver.solve(self,
+                                            cls,
+                                            guidance_scale,
+                                            batch_size,
+                                            use_2nd_order=use_2nd_order,
+                                            n_steps=n_steps,
+                                            n_middle_steps=n_middle_steps,
+                                            S=S,
+                                            cfg_zero_star=cfg_zero_star
+                                            )
+        x0_pred_list =  torch.vstack(x0_pred_list)
+        imgs = self.decode(x0_pred_list)
+        return imgs
     
     @torch.no_grad()
     def eval_solver(self, x, batch_size=9):
         ideal_net = IdealPosteriorEstimatorEDM(x, self.device)
-        x, _, _ = self.solver.solve(ideal_net,
+        x, _, = self.solver.solve(ideal_net,
                                     cls=0,
                                     guidance_scale=0,
                                     batch_size=batch_size,

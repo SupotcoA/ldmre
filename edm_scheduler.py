@@ -67,6 +67,7 @@ class EDMSolver(nn.Module):
             S=(0,0,0,1.0)
         # a variant of the Euler-Maruyama method from EDM
         t = torch.arange(0,n_steps+1)
+        self.rho=10-8*(t/t.max())
         t = (self.sigma_max**(1/self.rho)+\
              t/n_steps*\
              (self.sigma_min**(1/self.rho)-\
@@ -74,7 +75,6 @@ class EDMSolver(nn.Module):
         gamma = [min(2**0.5-1,S[0]/n_steps) if S[1]<t[i]<S[2] else 0\
                  for i in range(n_steps)]
         t = t.to(self.device)
-        x_list = []
         x_pred_list = []
         log_every_n_steps = n_steps // (1 + n_middle_steps)
         xi = torch.randn(batch_size, 4, 32, 32).to(model.device) * t[0]
@@ -102,12 +102,8 @@ class EDMSolver(nn.Module):
             xi = xip1
             
             if (i+1) % log_every_n_steps == 0:
-                x_list.append(xi)
                 x_pred_list.append(xi_hat-ti_hat*di)
-        std=x_list[-1].std()
-        for xi in x_list[:-1]:
-            xi*=std/xi.std()
-        return xi, x_list, x_pred_list
+        return xi, x_pred_list
     
 
 
