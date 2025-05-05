@@ -136,7 +136,7 @@ class Logger:
         base = np.zeros((h * nrow, w * ncol, c), dtype=np.uint8)
         for i in range(nrow):
             for j in range(ncol):
-                base[i * h:i * h + h, j * w:j * w + w, :] = imgs[i * ncol + j]
+                base[i * h:i * h + h, j * w:j * w + w, :] = imgs[j * nrow + i]
         fp = os.path.join(self.log_root, f"{fname}.png")
         cv2.imwrite(fp, base)
     

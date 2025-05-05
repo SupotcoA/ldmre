@@ -63,6 +63,8 @@ class EDMSolver(nn.Module):
                   **ignoredkwargs):
         if isinstance(cfg_zero_star,bool):
             cfg_zero_star=(cfg_zero_star,cfg_zero_star) # zero_init, rescale
+        if S is None: # deterministic
+            S=(0,0,0,1.0)
         # a variant of the Euler-Maruyama method from EDM
         t = torch.arange(0,n_steps+1)
         t = (self.sigma_max**(1/self.rho)+\

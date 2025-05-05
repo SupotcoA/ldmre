@@ -85,7 +85,8 @@ class DiffusionModel(nn.Module):
                              batch_size:int=16,
                              use_2nd_order=False,
                              n_steps=512,
-                             cfg_zero_star=False
+                             S=(40,0.05,50,1.003),
+                             cfg_zero_star=False,
                              ):
         x, _, _ = self.solver.solve(self,
                                     cls,
@@ -94,6 +95,7 @@ class DiffusionModel(nn.Module):
                                     use_2nd_order=use_2nd_order,
                                     n_steps=n_steps,
                                     n_middle_steps=0,
+                                    S=S,
                                     cfg_zero_star=cfg_zero_star
                                     )
         return self.decode(x)
@@ -122,6 +124,7 @@ class DiffusionModel(nn.Module):
                                                  batch_size:int=4,
                                                  n_steps=512,
                                                  n_middle_steps=8,
+                                                 S=(40,0.05,50,1.003),
                                                  cfg_zero_star=(True,False)
                                                  ):
         
@@ -132,6 +135,7 @@ class DiffusionModel(nn.Module):
                                                     use_2nd_order=use_2nd_order,
                                                     n_steps=n_steps,
                                                     n_middle_steps=n_middle_steps,
+                                                    S=S,
                                                     cfg_zero_star=cfg_zero_star
                                                     )
         x_list, x0_pred_list = torch.vstack(x_list), torch.vstack(x0_pred_list)
