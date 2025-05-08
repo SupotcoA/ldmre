@@ -88,7 +88,7 @@ def final_eval_generation(model, logger, verbose=False):
                                                     use_2nd_order=False,
                                                     n_steps=512,
                                                     cfg_zero_star=True,
-                                                    S=(40,0.05,50,1.000),
+                                                    S=(20,0.05,50,1.000),
                                                     )
                 logger.log_images(imgs, 4, 4, f"step_{logger.step}_cls_{cls}_cfg_{cfg}_step_512_czs")
         for cfg in [1,2,3]:
@@ -98,10 +98,10 @@ def final_eval_generation(model, logger, verbose=False):
                                                     16,
                                                     use_2nd_order=False,
                                                     n_steps=512,
-                                                    cfg_zero_star=True,
-                                                    S=(40,0.05,50,0.998),
+                                                    cfg_zero_star=(True,False),
+                                                    S=(20,0.05,50,0.99),
                                                     )
-                logger.log_images(imgs, 4, 4, f"step_{logger.step}_cls_{cls}_cfg_{cfg}_step_512_czs_os")
+                logger.log_images(imgs, 4, 4, f"step_{logger.step}_cls_{cls}_cfg_{cfg}_step_512_zio_os")
         # for cfg in [1,]:
         #     for cls in cls_:
         #         imgs = model.conditional_generation(cls,
@@ -120,6 +120,7 @@ def final_eval_generation(model, logger, verbose=False):
                                                     16,
                                                     use_2nd_order=False,
                                                     n_steps=512,
+                                                    S=(20,0.05,50,1.003),
                                                     cfg_zero_star=(True,False),
                                                     )
                 logger.log_images(imgs, 4, 4, f"step_{logger.step}_cls_{cls}_cfg_{cfg}_step_512_czs1")
@@ -131,7 +132,7 @@ def final_eval_generation(model, logger, verbose=False):
                                                     use_2nd_order=False,
                                                     n_steps=1024,
                                                     cfg_zero_star=(True, False),
-                                                    S=(40,0.05,50,1.000),
+                                                    S=(20,0.05,50,1.000),
                                                     )
                 logger.log_images(imgs, 4, 4, f"step_{logger.step}_cls_{cls}_cfg_{cfg}_step_1024")
         torch.cuda.empty_cache()
@@ -143,6 +144,7 @@ def final_eval_generation(model, logger, verbose=False):
                                                                     batch_size=4,
                                                                     n_steps=512,
                                                                     n_middle_steps=7,
+                                                                    S=(20,0.05,50,1.000),
                                                                     cfg_zero_star=(True,False)
                                                                     )
                 logger.log_images(imgs, 4, 8, f"step_{logger.step}_cls_{cls}_cfg_{cfg}_step_512_mid_czs1_pred")
@@ -154,10 +156,10 @@ def final_eval_generation(model, logger, verbose=False):
                                                                     batch_size=4,
                                                                     n_steps=512,
                                                                     n_middle_steps=7,
-                                                                    S=None,
+                                                                    S=(20,0.05,50,1.000),
                                                                     cfg_zero_star=(True,False)
                                                                     )
-                logger.log_images(imgs, 4, 8, f"step_{logger.step}_cls_{cls}_cfg_{cfg}_step_512_mid_czs1_ode_pred")
+                logger.log_images(imgs, 4, 8, f"step_{logger.step}_cls_{cls}_cfg_{cfg}_step_512_mid_czs1_pred")
     else:
         for cfg in [1,2,3]:
             for cls in range(5):
