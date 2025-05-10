@@ -67,7 +67,7 @@ class EDMSolver(nn.Module):
             S=(0,0,0,1.0)
         # a variant of the Euler-Maruyama method from EDM
         t = torch.arange(0,n_steps+1)
-        self.rho=10-8*(t/t.max())
+        #self.rho=10-8*(t/t.max())
         t = (self.sigma_max**(1/self.rho)+\
              t/n_steps*\
              (self.sigma_min**(1/self.rho)-\

@@ -6,7 +6,6 @@ from edm_scheduler import EDMDiffuser, EDMSolver
 from ideal_net import IdealPosteriorEstimatorEDM
 
 class DiffusionModel(nn.Module):
-    # TODO: implement EMA model
     def __init__(self,
                  net_config,
                  diffusion_config,
@@ -15,6 +14,10 @@ class DiffusionModel(nn.Module):
         self.net_config = net_config
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.n_class = net_config['n_class']
+        if len(net_config['valid_dataset_idx'])==1:
+            self.train_cls_mask_ratio=0.0
+        else:
+            self.train_cls_mask_ratio=0.15
         self.build_modules(net_config, diffusion_config)
     
     def build_modules(self,net_config,diffusion_config):
@@ -51,7 +54,7 @@ class DiffusionModel(nn.Module):
     def train_step(self, x0, cls):
         sigma, log_sigma = self.diffuser.sample_sigma(x0.shape[0], device=self.device)
         x = self.diffuser.diffuse(x0,sigma)
-        x_pred = self(x, cls, sigma, log_sigma, cls_mask_ratio=0.15)
+        x_pred = self(x, cls, sigma, log_sigma, cls_mask_ratio=self.train_cls_mask_ratio)
         return self.calculate_loss(x0, sigma, x_pred)
     
     @torch.no_grad()
@@ -62,7 +65,7 @@ class DiffusionModel(nn.Module):
             t = torch.full([x.shape[0]], t).to(self.device)
         elif isinstance(t, torch.Tensor) and t.dim()==0:
             t = t.expand(x.shape[0]).to(self.device)
-        if guidance>1:
+        if guidance > 1 and self.train_cls_mask_ratio > 0:
             # Conditional and unconditional outputs
             D_cond = self(x, cls, t, cls_mask_ratio=0.0)      # Conditional denoising
             D_uncond = self(x, cls, t, cls_mask_ratio=1.0)  # Unconditional denoising
