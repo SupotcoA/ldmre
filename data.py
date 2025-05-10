@@ -126,8 +126,8 @@ def build_cached_dataset(data_config):
             continue
         x.append(torch.load(os.path.join(data_config['enc_inp_path'], f'{name}_x.pt')))
         cls.append(torch.full((x[-1].shape[0],), cls_idx, dtype=torch.long))
-        cls_idx+=1
         data_config['valid_dataset_idx'].append(cls_idx)
+        cls_idx+=1
     assert cls_idx==data_config['n_class']
     x = torch.cat(x, dim=0)
     cls = torch.cat(cls, dim=0)

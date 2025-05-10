@@ -163,6 +163,8 @@ def final_eval_generation(model, train_config, logger, verbose=False):
     else:
         for cfg in [1,2,3]:
             for cls in range(5):
+                if not cls in train_config['valid_dataset_idx']:
+                    continue
                 imgs = model.conditional_generation(cls,
                                                     cfg,
                                                     12,
