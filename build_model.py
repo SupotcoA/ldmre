@@ -80,7 +80,7 @@ def build_model(logger,
     if train_config['use_lr_scheduler']:
         lr_scheduler = CosineSchedulerWithWarmup(optimizer=optim,
                                                  max_epochs=train_config['train_steps'],
-                                                 warmup_epochs=100,
+                                                 warmup_epochs=2000,
                                                  max_lr=train_config['base_learning_rate'],
                                                  warmup_start_lr=train_config['base_learning_rate']/10,
                                                  min_lr=train_config['min_learning_rate'])
