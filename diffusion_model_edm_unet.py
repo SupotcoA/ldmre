@@ -79,7 +79,7 @@ class DiffusionModel(nn.Module):
                 s=1
             return guidance * D_cond - (guidance - 1) * s * D_uncond
         else:
-            return self(x, cls, t, cls_mask_ratio=0.0)
+            return self(x, cls, t, cls_mask_ratio=0.0) * guidance
 
     @torch.no_grad()
     def conditional_generation(self,
