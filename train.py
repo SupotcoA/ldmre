@@ -81,11 +81,11 @@ def eval_generation(model, train_config, logger):
 def final_eval_generation(model, train_config, logger, verbose=False):
     logger.generation_start()
     if verbose:
-        cls__=[0]
+        cls__=[0,2,3]
         cls_=[]
         for cls in cls__:
             if cls in train_config['valid_dataset_idx']:
-                cls_.append(cls_)
+                cls_.append(cls)
         for cfg in [1,2,3]:
             for cls in cls_:
                 imgs = model.conditional_generation(cls,
