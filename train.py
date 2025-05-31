@@ -161,7 +161,7 @@ def final_eval_generation(model, train_config, logger, verbose=False):
         #                                                             )
         #         logger.log_images(imgs, 4, 8, f"cls_{cls}_cfg_{cfg}_step_512_mid_czs1_pred")
     else:
-        for cfg in [1,2,3]:
+        for cfg in [1,1.005,1.01]:
             for cls in range(5):
                 if not cls in train_config['valid_dataset_idx']:
                     continue
