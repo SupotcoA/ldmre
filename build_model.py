@@ -76,7 +76,8 @@ def build_model(logger,
     else:
         print("running on cpu!")
     optim = torch.optim.Adam(model.net.parameters(),
-                             lr=train_config['base_learning_rate'])
+                             lr=train_config['base_learning_rate'],
+                             betas=train_config['betas'])
     if train_config['use_lr_scheduler']:
         lr_scheduler = CosineSchedulerWithWarmup(optimizer=optim,
                                                  max_epochs=train_config['train_steps'],
