@@ -84,7 +84,7 @@ class Logger:
         plt.plot(self.train_loss, linewidth=2, color='#2E86C1', alpha=0.8)
         
         # Add rolling average for smoother visualization
-        window_size = min(50, len(self.train_loss))
+        window_size = min(1000, len(self.train_loss))
         rolling_mean = np.convolve(self.train_loss, 
                                   np.ones(window_size)/window_size, 
                                   mode='valid')
@@ -137,7 +137,14 @@ class Logger:
         for i in range(nrow):
             for j in range(ncol):
                 base[i * h:i * h + h, j * w:j * w + w, :] = imgs[j * nrow + i]
-        fp = os.path.join(self.log_root, f"{fname}.png")
+        fp = os.path.join(self.log_root, f"{fname}")
+        if os.path.exists(fp+".png"):
+            num=1
+            while os.path.exists(fp+f"({num}).png"):
+                num+=1
+            fp=fp+f"({num})"
+        fp+=".png"
+        
         cv2.imwrite(fp, base)
     
     def log_net(self,net,name):
