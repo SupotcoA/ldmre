@@ -86,7 +86,7 @@ def final_eval_generation(model, train_config, logger, verbose=False):
         for cls in cls__:
             if cls in train_config['valid_dataset_idx']:
                 cls_.append(cls)
-        for cfg in [1,1,1]:
+        for cfg in [1,1,1.005,1.005,1.01,1.01,]:
             for cls in cls_:
                 imgs = model.conditional_generation(cls,
                                                     cfg,
@@ -96,39 +96,7 @@ def final_eval_generation(model, train_config, logger, verbose=False):
                                                     cfg_zero_star=True,
                                                     )
                 logger.log_images(imgs, 4, 4, f"cls_{cls}_cfg_{cfg}_step_512_czs")
-        for cfg in [1,1,1]:
-            for cls in cls_:
-                imgs = model.conditional_generation(cls,
-                                                    cfg,
-                                                    16,
-                                                    use_2nd_order=False,
-                                                    n_steps=512,
-                                                    cfg_zero_star=(True,False),
-                                                    )
-                logger.log_images(imgs, 4, 4, f"cls_{cls}_cfg_{cfg}_step_512_czs1")
-        # for cfg in [1,]:
-        #     for cls in cls_:
-        #         imgs = model.conditional_generation(cls,
-        #                                             cfg,
-        #                                             16,
-        #                                             use_2nd_order=True,
-        #                                             n_steps=512,
-        #                                             cfg_zero_star=(True,False),
-        #                                             S=None,
-        #                                             )
-        #         logger.log_images(imgs, 4, 4, f"cls_{cls}_cfg_{cfg}_step_512_2nd_order_czs1_ode")
-        for cfg in [1,1,1]:
-            for cls in cls_:
-                imgs = model.conditional_generation(cls,
-                                                    cfg,
-                                                    16,
-                                                    use_2nd_order=False,
-                                                    S=None,
-                                                    n_steps=256,
-                                                    cfg_zero_star=(True,False),
-                                                    )
-                logger.log_images(imgs, 4, 4, f"cls_{cls}_cfg_{cfg}_step_256_ode")
-        for cfg in [1,1,1]:
+        for cfg in [1,1,1.005,1.005,1.01,1.01,]:
             for cls in cls_:
                 imgs = model.conditional_generation(cls,
                                                     cfg,
@@ -139,7 +107,9 @@ def final_eval_generation(model, train_config, logger, verbose=False):
                                                     )
                 logger.log_images(imgs, 4, 4, f"cls_{cls}_cfg_{cfg}_step_1024")
         torch.cuda.empty_cache()
-        for cfg in [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]:
+        for cfg in [1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                    1.005, 1.005, 1.005, 1.005, 1.005,
+                    1.01, 1.01, 1.01, 1.01, 1.01 ]:
             for cls in cls_:
                 imgs = model.conditional_generation_with_middle_steps(cls,
                                                                     cfg,
@@ -150,17 +120,6 @@ def final_eval_generation(model, train_config, logger, verbose=False):
                                                                     cfg_zero_star=(True,False)
                                                                     )
                 logger.log_images(imgs, 4, 8, f"cls_{cls}_cfg_{cfg}_step_512_mid_czs1_pred")
-        # for cfg in [1, 1.5, 2, 2.5]:
-        #     for cls in cls_:
-        #         imgs = model.conditional_generation_with_middle_steps(cls,
-        #                                                             cfg,
-        #                                                             use_2nd_order=False,
-        #                                                             batch_size=4,
-        #                                                             n_steps=512,
-        #                                                             n_middle_steps=7,
-        #                                                             cfg_zero_star=(True,False)
-        #                                                             )
-        #         logger.log_images(imgs, 4, 8, f"cls_{cls}_cfg_{cfg}_step_512_mid_czs1_pred")
     else:
         for cfg in [1,1,1]:
             for cls in range(5):
