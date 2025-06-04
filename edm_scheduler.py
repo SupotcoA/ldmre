@@ -89,7 +89,10 @@ class EDMSolver(nn.Module):
                                              ti_hat,
                                              guidance_scale,
                                              cfg_scale=cfg_zero_star[1])) / ti_hat
-            xip1 = xi_hat + (t[i+1] - ti_hat) * di
+            if model.train_cls_mask_ratio<=0:
+                xip1 = xi_hat + (t[i+1] - ti_hat) * di * guidance_scale
+            else:
+                xip1 = xi_hat + (t[i+1] - ti_hat) * di
             
             if use_2nd_order and t[i+1] > self.sigma_min * 2:
                 di_prime = (xip1 - model.guided_eval(xip1,
@@ -98,7 +101,10 @@ class EDMSolver(nn.Module):
                                                      guidance_scale,
                                                      cfg_scale=cfg_zero_star[1]
                                                      )) / t[i+1]
-                xip1 = xi_hat + (t[i+1] - ti_hat) * 0.5 * (di + di_prime)
+                if model.train_cls_mask_ratio<=0:
+                    xip1 = xi_hat + (t[i+1] - ti_hat) * 0.5 * (di + di_prime) * guidance_scale
+                else:
+                    xip1 = xi_hat + (t[i+1] - ti_hat) * 0.5 * (di + di_prime)
             xi = xip1
             
             if (i+1) % log_every_n_steps == 0:

@@ -81,22 +81,23 @@ def eval_generation(model, train_config, logger):
 def final_eval_generation(model, train_config, logger, verbose=False):
     logger.generation_start()
     if verbose:
+        cfg_=[1.5, 2, 3]
         cls__=[0,2,3]
         cls_=[]
         for cls in cls__:
             if cls in train_config['valid_dataset_idx']:
                 cls_.append(cls)
-        for cfg in [1,1,1.005,1.005,1.01,1.01,]:
+        for cfg in cfg_:
             for cls in cls_:
                 imgs = model.conditional_generation(cls,
                                                     cfg,
                                                     16,
                                                     use_2nd_order=False,
                                                     n_steps=512,
-                                                    cfg_zero_star=True,
+                                                    cfg_zero_star=(True, False),
                                                     )
-                logger.log_images(imgs, 4, 4, f"cls_{cls}_cfg_{cfg}_step_512_czs")
-        for cfg in [1,1,1.005,1.005,1.01,1.01,]:
+                logger.log_images(imgs, 4, 4, f"cls_{cls}_cfg_{cfg}_step_512_czs1")
+        for cfg in cfg_:
             for cls in cls_:
                 imgs = model.conditional_generation(cls,
                                                     cfg,
@@ -105,11 +106,9 @@ def final_eval_generation(model, train_config, logger, verbose=False):
                                                     n_steps=1024,
                                                     cfg_zero_star=(True, False),
                                                     )
-                logger.log_images(imgs, 4, 4, f"cls_{cls}_cfg_{cfg}_step_1024")
+                logger.log_images(imgs, 4, 4, f"cls_{cls}_cfg_{cfg}_step_1024_czs1")
         torch.cuda.empty_cache()
-        for cfg in [1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                    1.005, 1.005, 1.005, 1.005, 1.005,
-                    1.01, 1.01, 1.01, 1.01, 1.01 ]:
+        for cfg in cfg_*2:
             for cls in cls_:
                 imgs = model.conditional_generation_with_middle_steps(cls,
                                                                     cfg,
